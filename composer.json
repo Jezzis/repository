@@ -1,20 +1,20 @@
 {
-  "name": "zyts/repository",
-  "description": "The Illuminate Config package.",
+  "name": "zyts/repositories",
+  "description": "The Repository package.",
   "license": "MIT",
-  "homepage": "http://laravel.com",
+  "homepage": "http://git.zyts360.site/components/repositories",
   "support": {
-    "issues": "https://github.com/laravel/framework/issues",
-    "source": "https://github.com/laravel/framework"
+    "issues": "http://git.zyts360.site/components/repositories/issues",
+    "source": "http://git.zyts360.site/components/repositories"
   },
   "authors": [
     {
-      "name": "Taylor Otwell",
-      "email": "taylor@laravel.com"
+      "name": "Jezzis",
+      "email": "jezzie727@gmail.com"
     }
   ],
   "require": {
-    "php": ">=5.5.9",
+    "php": ">=5.6",
     "illuminate/contracts": "5.2.*",
     "illuminate/database": "5.2.*",
     "illuminate/filesystem": "5.2.*",
