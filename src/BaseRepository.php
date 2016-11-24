@@ -237,7 +237,7 @@ class BaseRepository implements BaseRepositoryContract
         return $ret;
     }
 
-    public function paginate($numPerPage)
+    public function paginate($numPerPage = 10)
     {
         $this->getQuery();
         $ret = $this->query->paginate($numPerPage, ['*'], 'p');
