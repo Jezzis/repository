@@ -251,7 +251,7 @@ interface BaseRepositoryContract
      * @param $id 主键
      * @return mixed
      */
-    public function delete($id = null);
+    public function delete($id);
 
     /**
      * 根据主键更新

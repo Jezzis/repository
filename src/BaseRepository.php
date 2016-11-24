@@ -286,7 +286,7 @@ class BaseRepository implements BaseRepositoryContract
         return call_user_func_array([$this->modelFullName, 'create'], array($attributes));
     }
 
-    public function delete($id = null)
+    public function delete($id)
     {
         if (!empty($id)) { // 依据主键删除
             if (is_array($id)) {
