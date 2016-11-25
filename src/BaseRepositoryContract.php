@@ -242,14 +242,14 @@ interface BaseRepositoryContract
     /**
      * 创建
      * @param array $attributes 字段
-     * @return mixed
+     * @return Model
      */
     public function create($attributes);
 
     /**
      * 根据主键删除
-     * @param $id 主键
-     * @return mixed
+     * @param mixed $id 主键|主键数组
+     * @return integer 影响行数
      */
     public function delete($id);
 
@@ -257,7 +257,7 @@ interface BaseRepositoryContract
      * 根据主键更新
      * @param $id 主键
      * @param array $attributes 字段
-     * @return mixed
+     * @return Model|boolean
      */
     public function update($id, $attributes);
 }

@@ -292,7 +292,7 @@ class BaseRepository implements BaseRepositoryContract
             if (is_array($id)) {
                 return call_user_func_array([$this->modelFullName, 'destroy'], [$id]);
             }
-            return call_user_func_array([$this->modelFullName, 'destroy'], $id);
+            return call_user_func([$this->modelFullName, 'destroy'], $id);
         }
 
         // 条件删除
@@ -309,7 +309,11 @@ class BaseRepository implements BaseRepositoryContract
             return false;
         }
 
-        return $model->fill($attributes)->save();
+        if (!$model->fill($attributes)->save()) {
+            return false;
+        }
+
+        return $model;
     }
 
     public function __call($method, $parameters)
