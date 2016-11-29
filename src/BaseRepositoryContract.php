@@ -6,6 +6,7 @@
  * Time: 23:34
  */
 namespace Zyts\Repositories;
+use Illuminate\Contracts\Pagination\LengthAwarePaginator;
 use Illuminate\Database\Eloquent\Collection;
 use Illuminate\Database\Eloquent\Model;
 
@@ -24,6 +25,10 @@ interface BaseRepositoryContract
      */
     public function getErrMsg();
 
+    /**
+     * dump sql
+     * @return mixed
+     */
     public function getSqlDump();
 
     /**
@@ -95,6 +100,22 @@ interface BaseRepositoryContract
      *
      * example:
      *
+     *  where age >= '18'
+     *  repo->where(['age', '>=', 18]);
+     *
+     *  where age = '18'
+     *  repo->where(['age', '=', 18])
+     *
+     * @param array $where
+     * @return mixed
+     */
+    public function where(array $where);
+
+    /**
+     * 批量添加 where and 条件
+     *
+     * example:
+     *
      *  1) where department = 'test' and age > '30'
      *  repo->wheres(['department' => 'test', 'age' => ['>', 30]]);
      *
@@ -111,6 +132,22 @@ interface BaseRepositoryContract
 
     /**
      * 添加 where or 条件
+     *
+     * example:
+     *
+     *  where age >= '18'
+     *  repo->orWhere(['age', '>=', 18]);
+     *
+     *  where age = '18'
+     *  repo->orWhere(['age', '=', 18])
+     *
+     * @param array $where
+     * @return mixed
+     */
+    public function orWhere(array $where);
+
+    /**
+     * 批量添加 where or 条件
      *
      * example:
      *
@@ -155,15 +192,17 @@ interface BaseRepositoryContract
      * example:
      *
      *  1) limit 3 offset 1
+     *  repo->limits(1, 3)
      *  repo->limits([1, 3])
      *
-     *  2) limit 3
+     *  2) limit 3 (offset 0)
      *  repo->limits(3)
      *
-     * @param array|string $limits limit限制
+     * @param array|integer $offset
+     * @param integer $limit
      * @return BaseRepositoryContract
      */
-    public function limits($limits);
+    public function limits($offset, $limit = 0);
 
     /**
      * 添加排序条件
@@ -184,14 +223,17 @@ interface BaseRepositoryContract
      *
      * example:
      *
-     *  group by columnA asc, columnB desc
-     *  repo->orders(['columnA' => 'asc', 'columnB' => 'desc'])
-     *  repo->orders(['columnA asc', 'columnB desc'])
+     *  group by columnA
+     *  repo->groups(['columnA'])
+     *
+     *  group by count(columnA)
+     *  repo->groups(['count(columnA)'], true)
      *
      * @param array $groups 分组
+     * @param boolean $rawSql 是否使用原生sql
      * @return BaseRepositoryContract
      */
-    public function groups($groups);
+    public function groups($groups, $rawSql = false);
 
     /**
      * 添加分组过滤条件
@@ -232,12 +274,27 @@ interface BaseRepositoryContract
     public function count();
 
     /**
+     * 获取单列
+     *
+     * @return array
+     */
+    public function pluck();
+
+    /**
+     * 获取单个值
+     *
+     * @return array
+     */
+    public function value();
+
+    /**
      * 分页
      *
      * @param integer $numPerPage 每页多少
-     * @return mixed
+     * @param string $pageName Http Get 分页参数名
+     * @return LengthAwarePaginator
      */
-    public function paginate($numPerPage = 10);
+    public function paginate($numPerPage = 10, $pageName = 'p');
 
     /**
      * 创建

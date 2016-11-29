@@ -11,6 +11,7 @@ namespace Zyts\Repositories;
 
 use Illuminate\Database\Eloquent\Builder;
 use Illuminate\Database\Eloquent\Model;
+use Illuminate\Support\Arr;
 use Illuminate\Support\Facades\DB;
 
 class BaseRepository implements BaseRepositoryContract
@@ -88,113 +89,144 @@ class BaseRepository implements BaseRepositoryContract
         return $this->query;
     }
 
-    protected function newQuery()
+    protected function _newQuery()
     {
         $this->query = $this->modelInstance->newQuery();
         return $this->query;
     }
 
-    public function wheres($wheres)
+    protected function _getFlushQuery($method, $params = null)
     {
-        $this->getQuery();
-        if (arr_is_assoc($wheres)) {
+        if (!empty($params)) {
+            $ret = call_user_func_array([$this->getQuery(), $method], $params);
+        } else {
+            $ret = call_user_func([$this->getQuery(), $method]);
+        }
+        $this->_flushQuery();
+        return $ret;
+    }
+
+    protected function _flushQuery()
+    {
+        unset($this->query);
+        $this->query = null;
+    }
+
+    public function where(array $where)
+    {
+        if (!Arr::isAssoc($where)) {
+
+            $column = $where[0];
+            $operator = $where[1];
+            $value = $where[2];
+            $logic = !empty($where[3]) ? $where[3] : 'and';
+
+            if ($operator == 'in') {
+                $this->getQuery()->whereIn($column, $value, $logic);
+            } else {
+                $this->getQuery()->where($column, $operator, $value, $logic);
+            }
+        }
+        return $this;
+    }
+
+    protected function _prepareWheres($wheres)
+    {
+        $preparedWheres = [];
+        if (Arr::isAssoc($wheres)) {
             foreach ($wheres as $column => $condition) {
                 if (is_array($condition)) {
-                    if ($condition[0] == 'in') {
-                        $this->query->whereIn($column, $condition[1]);
-                    } else {
-                        $this->query->where($column, $condition[0], $condition[1]);
-                    }
+                    $where = array_merge([$column], $condition);
                 } else {
-                    $this->query->where($column, $condition);
+                    $where = [$column, '=', $condition];
                 }
+                $preparedWheres[] = $where;
             }
         } else {
-            foreach ($wheres as $condition) {
-                if (count($condition) == 3) {
-                    if ($condition[1] == 'in') {
-                        $this->query->whereIn($condition[0], $condition[2]);
-                    } else {
-                        $this->query->where($condition[0], $condition[1], $condition[2]);
-                    }
-                } elseif (count($condition) == 2) {
-                    $this->query->where($condition[0], $condition[1]);
-                }
-            }
+            $preparedWheres = $wheres;
+        }
+        return $preparedWheres;
+    }
+
+    public function wheres($wheres)
+    {
+        $preparedWheres = $this->_prepareWheres($wheres);
+        foreach ($preparedWheres as $where) {
+            $this->where($where);
+        }
+        return $this;
+    }
+
+    public function orWhere($where)
+    {
+        if (!Arr::isAssoc($where)) {
+            $where[3] = 'or';
+            $this->where($where);
         }
         return $this;
     }
 
     public function orWheres($wheres)
     {
-        $this->getQuery();
-        if (arr_is_assoc($wheres)) {
-            foreach ($wheres as $column => $condition) {
-                if (is_array($condition)) {
-                    $this->query->orWhere($column, $condition[0], $condition[1]);
-                } else {
-                    $this->query->orWhere($column, $condition);
-                }
-            }
-        } else {
-            foreach ($wheres as $condition) {
-                if (count($condition) == 3) {
-                    $this->query->orWhere($condition[0], $condition[1], $condition[2]);
-                } elseif (count($condition) == 2) {
-                    $this->query->orWhere($condition[0], $condition[1]);
-                }
-            }
+        $preparedWheres = $this->_prepareWheres($wheres);
+        foreach ($preparedWheres as $where) {
+            $this->orWhere($where);
         }
         return $this;
     }
 
     public function select($columns)
     {
-        $this->getQuery();
         if (is_string($columns)) {
-            $this->query->selectRaw($columns);
+            $this->getQuery()->selectRaw($columns);
         } else {
-            $this->query->select($columns);
+            $this->getQuery()->select($columns);
         }
         return $this;
     }
 
-    public function limits($limits)
+    public function limits($offset, $limit = 0)
     {
-        $this->getQuery();
-        if (is_array($limits)) {
-            $this->query->limit($limits[1])->offset($limits[0]);
-        } else {
-            $this->query->limit($limits);
+        $args = func_get_args();
+        $offset = $limit = 0;
+        if (count($args) == 1) {
+            if (is_array($args[0])) {
+                list($offset, $limit) = $args[0];
+            } else {
+                $limit = $args[0];
+            }
+        } elseif (count($args) == 2) {
+            list($offset, $limit) = $args;
         }
+
+        $this->getQuery()->offset($offset);
+        $this->getQuery()->limit($limit);
         return $this;
     }
 
     public function orders($orders)
     {
-        $this->getQuery();
-        if (arr_is_assoc($orders)) {
+        if (Arr::isAssoc($orders)) {
             foreach ($orders as $column => $order) {
-                $this->query->orderBy($column, $order);
+                $this->getQuery()->orderBy($column, $order);
             }
         } else {
             foreach ($orders as $order) {
-                $this->query->orderByRaw($order);
+                $this->getQuery()->orderByRaw($order);
             }
         }
         return $this;
     }
 
-    public function groups($groups)
+    public function groups($groups, $rawSql = false)
     {
-        $this->getQuery();
-        if (arr_is_assoc()) {
+        if (!$rawSql) {
             foreach ($groups as $column) {
-                $this->query->groupBy($column);
+                $this->getQuery()->groupBy($column);
             }
         } else {
             foreach ($groups as $group) {
-                $this->query->groupByRaw($group);
+                $this->getQuery()->groupByRaw($group);
             }
         }
         return $this;
@@ -202,12 +234,11 @@ class BaseRepository implements BaseRepositoryContract
 
     public function havings($havings)
     {
-        $this->getQuery();
         foreach ($havings as $having) {
             if (is_string($having)) {
-                $this->query->havingRaw($having);
+                $this->getQuery()->havingRaw($having);
             } elseif (is_array($having) && count($having) == 3) {
-                $this->query->having($having[0], $having[1], $having[2]);
+                $this->getQuery()->having($having[0], $having[1], $having[2]);
             }
         }
         return $this;
@@ -215,63 +246,47 @@ class BaseRepository implements BaseRepositoryContract
 
     public function get()
     {
-        $this->getQuery();
-        $ret = $this->query->get();
-        $this->query = null;
-        return $ret;
+        return $this->_getFlushQuery('get');
     }
 
     public function first()
     {
-        $this->getQuery();
-        $ret = $this->query->first();
-        $this->query = null;
-        return $ret;
+        return $this->_getFlushQuery('first');
     }
 
     public function count()
     {
-        $this->getQuery();
-        $ret = $this->query->count();
-        $this->query = null;
-        return $ret;
+        return $this->_getFlushQuery('count');
     }
 
-    public function paginate($numPerPage = 10)
+    public function pluck()
     {
-        $this->getQuery();
-        $ret = $this->query->paginate($numPerPage, ['*'], 'p');
-        $this->query = null;
-        return $ret;
+        return $this->_getFlushQuery('pluck');
+    }
+
+    public function value()
+    {
+        return $this->_getFlushQuery('value');
+    }
+
+    public function paginate($numPerPage = 10, $pageName = 'p')
+    {
+        return $this->_getFlushQuery('paginate', [$numPerPage, ['*'], $pageName]);
     }
 
     public function simpleSelect($wheres, $columns = ['*'], $limits = 0, $orders = [], $groups = [], $havings = [])
     {
-        $this->newQuery();
+        if ($wheres) $this->wheres($wheres);
 
-        if ($wheres) {
-            $this->wheres($wheres);
-        }
+        if ($columns) $this->select($columns);
 
-        if ($columns) {
-            $this->select($columns);
-        }
+        if ($limits) $this->limits($limits);
 
-        if ($limits) {
-            $this->limits($limits);
-        }
+        if ($orders) $this->orders($orders);
 
-        if ($orders) {
-            $this->orders($orders);
-        }
+        if ($groups) $this->groups($groups);
 
-        if ($groups) {
-            $this->groups($groups);
-        }
-
-        if ($havings) {
-            $this->havings($havings);
-        }
+        if ($havings) $this->havings($havings);
 
         return $this->get();
     }
@@ -296,10 +311,7 @@ class BaseRepository implements BaseRepositoryContract
         }
 
         // 条件删除
-        $this->getQuery();
-        $ret = $this->query->delete();
-        $this->query = null;
-        return $ret;
+        return $this->_getFlushQuery('delete');
     }
 
     public function update($id, $attributes)
