@@ -109,7 +109,7 @@ interface BaseRepositoryContract
      * @param array $where
      * @return mixed
      */
-    public function where(array $where);
+    public function where($where);
 
     /**
      * 批量添加 where and 条件
@@ -144,7 +144,7 @@ interface BaseRepositoryContract
      * @param array $where
      * @return mixed
      */
-    public function orWhere(array $where);
+    public function orWhere($where);
 
     /**
      * 批量添加 where or 条件

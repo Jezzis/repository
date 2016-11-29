@@ -112,7 +112,7 @@ class BaseRepository implements BaseRepositoryContract
         $this->query = null;
     }
 
-    public function where(array $where)
+    public function where($where)
     {
         if (!Arr::isAssoc($where)) {
 
