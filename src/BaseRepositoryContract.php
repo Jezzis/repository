@@ -10,6 +10,19 @@ use Illuminate\Contracts\Pagination\LengthAwarePaginator;
 use Illuminate\Database\Eloquent\Collection;
 use Illuminate\Database\Eloquent\Model;
 
+/**
+ * Interface BaseRepositoryContract
+ * @package Zyts\Repositories
+ *
+ * @method \Illuminate\Database\Eloquent\Model|\Illuminate\Database\Eloquent\Collection|static[]|static|null find(mixed $id, array $columns = ['*'])
+ * @method \Illuminate\Database\Eloquent\Collection findMany(array $ids, array $columns = ['*'])
+ * @method \Illuminate\Database\Eloquent\Model|\Illuminate\Database\Eloquent\Collection findOrFail(mixed $id, array $columns = ['*'])
+ * @method \Illuminate\Database\Eloquent\Model findOrNew(mixed $id, array $columns = ['*'])
+ * @method \Illuminate\Database\Eloquent\Model firstOrNew(array $attributes)
+ * @method \Illuminate\Database\Eloquent\Model firstOrCreate(array $attributes)
+ * @method \Illuminate\Database\Eloquent\Model updateOrCreate(array $attributes, array $values = [])
+ * @method boolean chunk(integer $count, callable $callback)
+ */
 interface BaseRepositoryContract
 {
     /**
@@ -30,22 +43,6 @@ interface BaseRepositoryContract
      * @return mixed
      */
     public function getSqlDump();
-
-    /**
-     * 按主键id查询
-     * @param $id
-     * @param array $columns 查询列
-     * @return mixed
-     */
-    public function find($id, $columns = ['*']);
-
-    /**
-     * 按主键id查询，如果失败则返回false
-     * @param $id
-     * @param array $columns 查询列
-     * @return mixed
-     */
-    public function findOrFail($id, $columns = ['*']);
 
     /**
      * alias to simpleSelect

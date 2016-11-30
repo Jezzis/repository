@@ -14,6 +14,19 @@ use Illuminate\Database\Eloquent\Model;
 use Illuminate\Support\Arr;
 use Illuminate\Support\Facades\DB;
 
+/**
+ * Class BaseRepository
+ * @package Zyts\Repositories
+ *
+ * @method \Illuminate\Database\Eloquent\Model|\Illuminate\Database\Eloquent\Collection|static[]|static|null find(mixed $id, array $columns = ['*'])
+ * @method \Illuminate\Database\Eloquent\Collection findMany(array $ids, array $columns = ['*'])
+ * @method \Illuminate\Database\Eloquent\Model|\Illuminate\Database\Eloquent\Collection findOrFail(mixed $id, array $columns = ['*'])
+ * @method \Illuminate\Database\Eloquent\Model findOrNew(mixed $id, array $columns = ['*'])
+ * @method \Illuminate\Database\Eloquent\Model firstOrNew(array $attributes)
+ * @method \Illuminate\Database\Eloquent\Model firstOrCreate(array $attributes)
+ * @method \Illuminate\Database\Eloquent\Model updateOrCreate(array $attributes, array $values = [])
+ * @method boolean chunk(integer $count, callable $callback)
+ */
 class BaseRepository implements BaseRepositoryContract
 {
     /**
@@ -64,16 +77,6 @@ class BaseRepository implements BaseRepositoryContract
     public function getSqlDump()
     {
         return DB::getQueryLog();
-    }
-
-    public function find($primaryKey, $columns = ['*'])
-    {
-        return $this->modelInstance->find($primaryKey, $columns);
-    }
-
-    public function findOrFail($primaryKey, $columns = ['*'])
-    {
-        return $this->modelInstance->findOrFail($primaryKey, $columns);
     }
 
     public function all($columns = ['*'])
