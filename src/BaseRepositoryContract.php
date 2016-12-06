@@ -104,7 +104,7 @@ interface BaseRepositoryContract
      *  repo->where(['age', '=', 18])
      *
      * @param array $where
-     * @return mixed
+     * @return BaseRepositoryContract
      */
     public function where($where);
 
@@ -139,7 +139,7 @@ interface BaseRepositoryContract
      *  repo->orWhere(['age', '=', 18])
      *
      * @param array $where
-     * @return mixed
+     * @return BaseRepositoryContract
      */
     public function orWhere($where);
 
