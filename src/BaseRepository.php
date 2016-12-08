@@ -262,14 +262,14 @@ class BaseRepository implements BaseRepositoryContract
         return $this->_getFlushQuery('count');
     }
 
-    public function pluck()
+    public function pluck($column)
     {
-        return $this->_getFlushQuery('pluck');
+        return $this->_getFlushQuery('pluck', [$column]);
     }
 
-    public function value()
+    public function value($column)
     {
-        return $this->_getFlushQuery('value');
+        return $this->_getFlushQuery('value', [$column]);
     }
 
     public function paginate($numPerPage = 10, $pageName = 'p')

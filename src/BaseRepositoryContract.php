@@ -273,16 +273,18 @@ interface BaseRepositoryContract
     /**
      * 获取单列
      *
+     * @param $column
      * @return array
      */
-    public function pluck();
+    public function pluck($column);
 
     /**
      * 获取单个值
      *
+     * @param $column
      * @return array
      */
-    public function value();
+    public function value($column);
 
     /**
      * 分页
